@@ -111,17 +111,17 @@ def main():
                 file_prefix = file_prefix + '_mixup'
 
             auto_augmentation_transforms = [rand_augment_transform(aa_config_string, aa_params)]
-            # basic_augmentation_transforms = [transforms.RandomCrop(im_dim, padding=4, fill=tuple([min(255, int(round(255 * x))) for x in mu])), transforms.RandomHorizontalFlip()]
+            basic_augmentation_transforms = [transforms.RandomCrop(im_dim, padding=4, fill=tuple([min(255, int(round(255 * x))) for x in mu])), transforms.RandomHorizontalFlip()]
             data_transforms = [transforms.ToTensor(), transforms.Normalize(mu,sigma)]
             re_transform = [transforms.RandomErasing(p=reprob, value='random')]
 
             transform = transforms.Compose(
                 auto_augmentation_transforms + 
-                #basic_augmentation_transforms + 
+                basic_augmentation_transforms + 
                 data_transforms + 
                 re_transform
             )
-            
+            print("transform:", transform)
             if args.train_aug:
 
                 file_prefix = file_prefix + '_tr_aug_%d' %args.train_aug
