@@ -76,7 +76,7 @@ class ANN():
         for X,y in trainloader:
 
             if mixup_fn is not None:
-                X,y = mixup_fn(X,y, device = 'cpu')
+                X,y = mixup_fn(X,y)                
 
             X = X.numpy().reshape(-1,3072).astype('float32')
             if self.pca:

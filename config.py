@@ -11,7 +11,7 @@ d = im_dim*im_dim*3
 
 
 ## AA config
-tr_max = 5
+pad = 4
 num_epochs = 1600
 aa_config_string = 'rand-m5-mstd0.5-inc1'
 aa_params = dict(translate_const=int(im_dim * 0.45), img_mean=tuple([min(255, round(255 * channel_mean)) for channel_mean in mu]))

@@ -17,8 +17,8 @@ def main():
     device = torch.device(args.device)
     using_gpu = device.type =='cuda'
 
-    root = default_cfg['root']
-    save_dir = default_cfg['save_dir']
+    root = os.environ.get('DATA_DIR',default_cfg['root'])
+    save_dir = os.environ.get('OUTPUT_DIR', default_cfg['save_dir'])
 
     if using_gpu:
         save_dir = os.path.join(save_dir,"gpu")
@@ -80,14 +80,14 @@ def main():
 
             print("ANN: adding augmented trainloaders")
 
-            for i in range(tr_max): # x-location of padding for randomcrop
-                for j in range(tr_max): # y-location of padding for randomcrop
+            for i in range(2*pad+1): # x-location of padding for randomcrop
+                for j in range(2*pad+1): # y-location of padding for randomcrop
                     for k in range(2): # probability of horizontal flip
-                        if i==tr_max//2 and j==tr_max//2 and k==0: # same as unaugmented training image 
+                        if i==pad and j==pad and k==0: # same as unaugmented training image 
                             continue
                         transform = transforms.Compose(
                             [transforms.RandomHorizontalFlip(k),
-                            transforms.Pad([i,j,2*tr_max-1-i,2*tr_max-1-j], fill=tuple([min(255, int(round(255 * x))) for x in mu])),
+                            transforms.Pad([i,j,2*pad-i,2*pad-j], fill=tuple([min(255, int(round(255 * x))) for x in mu])),
                             transforms.CenterCrop(32),
                             transforms.ToTensor(),
                             transforms.Normalize(mu,sigma)])
@@ -111,11 +111,16 @@ def main():
                 file_prefix = file_prefix + '_mixup'
 
             auto_augmentation_transforms = [rand_augment_transform(aa_config_string, aa_params)]
-            basic_augmentation_transforms = [transforms.RandomCrop(im_dim, padding=4, fill=tuple([min(255, int(round(255 * x))) for x in mu])), transforms.RandomHorizontalFlip()]
+            # basic_augmentation_transforms = [transforms.RandomCrop(im_dim, padding=4, fill=tuple([min(255, int(round(255 * x))) for x in mu])), transforms.RandomHorizontalFlip()]
             data_transforms = [transforms.ToTensor(), transforms.Normalize(mu,sigma)]
             re_transform = [transforms.RandomErasing(p=reprob, value='random')]
 
-            transform = transforms.Compose(auto_augmentation_transforms + basic_augmentation_transforms + data_transforms + re_transform)
+            transform = transforms.Compose(
+                auto_augmentation_transforms + 
+                #basic_augmentation_transforms + 
+                data_transforms + 
+                re_transform
+            )
             
             if args.train_aug:
 
